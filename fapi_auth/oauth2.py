@@ -29,3 +29,13 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
         )
     return db.query(User).filter(User.id == credentials.subject["id"]).first()
+
+
+def refresh_tokens(credentials: JwtAuthorizationCredentials = Security(refresh_security)
+):
+    # Update access/refresh tokens pair
+    # We can customize expires_delta when creating
+    access_token = access_security.create_access_token(subject=credentials.subject)
+    refresh_token = refresh_security.create_refresh_token(subject=credentials.subject, expires_delta=timedelta(days=30))
+
+    return {"access_token": access_token, "token_type": "bearer", "refresh_token": refresh_token}

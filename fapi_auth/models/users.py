@@ -14,7 +14,7 @@ class DateMixins(object):
 
 class User(Base, DateMixins):
     id = Column(Integer, primary_key=True, autoincrement=True)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     name = Column(String, nullable=False)
     password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True, server_default=text("true"))

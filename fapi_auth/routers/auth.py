@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models.users import User
-from ..oauth2 import access_security, get_current_user
-from ..schemas.users import Token, UserInLogin, UserInResponse
+from ..oauth2 import access_security, get_current_user, refresh_tokens, refresh_security
+from ..schemas.users import Token, UserInResponse
 from ..utils import verify
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -28,7 +28,7 @@ def login(
     # create token
     payload_data = {"id": user.id}
     access_token = access_security.create_access_token(subject=payload_data)
-    refresh_token = access_security.create_refresh_token(subject=payload_data)
+    refresh_token = refresh_security.create_refresh_token(subject=payload_data)
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -37,5 +37,12 @@ def login(
 
 
 @auth_router.get("/current", response_model=UserInResponse)
-def get_curr_user(current_user: int = Depends(get_current_user)):
+def get_curr_user(current_user = Depends(get_current_user)):
     return current_user
+
+
+@auth_router.post("/refresh")
+def refresh(
+        tokens: dict = Depends(refresh_tokens)
+):
+    return tokens
